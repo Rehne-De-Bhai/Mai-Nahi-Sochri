@@ -17,8 +17,8 @@ export class EMIPage {
 
     loanAmountSlider = () => this.page.locator('#slideramount');
 
-    twelveMonths = () =>
-        this.page.locator('input[name="loadPeriod"][value="12"]');
+    thirtySixMonths = () =>
+        this.page.locator('input[name="loadPeriod"][value="36"]');
 
     twentyFourMonths = () =>
         this.page.locator('input[name="loadPeriod"][value="24"]');
@@ -33,17 +33,19 @@ export class EMIPage {
 
     }
 
-    async selectHondaActivaSTD() {
+    async selectBike(
+        brand: string,
+        model: string,
+        variant: string
+    ) {
 
-        await this.page.getByPlaceholder('Select Brand').click();
-        await this.page.getByText(data.bike.brand).first().click();
+        await this.page.getByPlaceholder('Select Brand').fill(brand);
+        await this.page.keyboard.press('Enter');
 
-        await this.page.getByPlaceholder('Select Model').click();
-        await this.page.getByText(data.bike.model, {exact: true}).click();
+        await this.page.getByPlaceholder('Select Model').fill(model);
+        await this.page.keyboard.press('Enter');
 
-        await this.page.getByPlaceholder('Select Variant').click();
-        await this.page.getByPlaceholder('Select Variant').fill(data.bike.variant);
-
+        await this.page.getByPlaceholder('Select Variant').fill(variant);
         await this.page.keyboard.press('Enter');
     }
 
@@ -51,8 +53,8 @@ export class EMIPage {
         return await this.emiPrice().textContent();
     }
 
-    async changeTenureTo12Months() {
-        await this.twelveMonths().check();
+    async changeTenureTo36Months() {
+        await this.thirtySixMonths().check();
     }
 
     async changeTenureTo24Months() {

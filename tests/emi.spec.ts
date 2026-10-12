@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { EMIPage } from '../pages/EMIPage';
+import bikeData from '../test-data/emiData.json';
 
 let emiPage: EMIPage;
 
@@ -15,7 +16,11 @@ test.beforeEach(async ({ page }) => {
 test('TC_EMI_01 Validate EMI calculation with valid inputs',
 async ({ page }) => {
 
-    await emiPage.selectHondaActivaSTD();
+    await emiPage.selectBike(
+        bikeData.bike.brand,
+        bikeData.bike.model,
+        bikeData.bike.variant
+    );
 
     await expect(
         emiPage.emiPrice()
@@ -27,15 +32,33 @@ async ({ page }) => {
 test('TC_EMI_02 Validate EMI recalculation when tenure changes',
 async ({ page }) => {
 
-    await emiPage.selectHondaActivaSTD();
+    await emiPage.selectBike(
+        bikeData.bike.brand,
+        bikeData.bike.model,
+        bikeData.bike.variant
+    );
+
+    console.log(
+  await page.getByPlaceholder('Select Brand').inputValue()
+);
+
+console.log(
+  await page.getByPlaceholder('Select Model').inputValue()
+);
+
+console.log(
+  await page.getByPlaceholder('Select Variant').inputValue()
+);
 
     const beforeEMI = await emiPage.getEMI();
+    console.log("before:"+beforeEMI)
 
-    await emiPage.changeTenureTo12Months();
+    await emiPage.changeTenureTo24Months();
 
     await page.waitForTimeout(2000);
 
     const afterEMI = await emiPage.getEMI();
+    console.log("after:"+afterEMI)
 
     expect(afterEMI).not.toEqual(beforeEMI);
 });
@@ -45,7 +68,11 @@ async ({ page }) => {
 test('TC_EMI_03 Validate EMI recalculation when interest rate changes',
 async ({ page }) => {
 
-    await emiPage.selectHondaActivaSTD();
+    await emiPage.selectBike(
+        bikeData.bike.brand,
+        bikeData.bike.model,
+        bikeData.bike.variant
+    );
 
     const beforeEMI = await emiPage.getEMI();
 
@@ -102,7 +129,11 @@ test('TC_EMI_06 Validate alphabetic input restriction', async ({ page }) => {
 test('TC_EMI_07 Validate EMI update through sliders',
 async ({ page }) => {
 
-    await emiPage.selectHondaActivaSTD();
+    await emiPage.selectBike(
+        bikeData.bike.brand,
+        bikeData.bike.model,
+        bikeData.bike.variant
+    );
 
     const beforeEMI = await emiPage.getEMI();
 
