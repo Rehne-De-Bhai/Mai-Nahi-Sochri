@@ -1,8 +1,46 @@
 import { test, expect } from '@playwright/test';
+import ExcelJS = require('exceljs');
+import path = require('path');
 import { EMIPage } from '../pages/EMIPage';
 import bikeData from '../test-data/emiData.json';
 
 let emiPage: EMIPage;
+
+async function readTenureChangeData() {
+    const workbook = new ExcelJS.Workbook();
+    const workbookPath = path.resolve(
+        __dirname,
+        '../test-data/emiTestData.xlsx'
+    );
+    await workbook.xlsx.readFile(workbookPath);
+
+    const worksheet = workbook.getWorksheet('Tenure Change');
+    if (!worksheet) {
+        throw new Error('Excel sheet "Tenure Change" was not found');
+    }
+
+    const row = worksheet.getRow(2);
+    const data = {
+        testCase: row.getCell(1).text,
+        brand: row.getCell(2).text,
+        model: row.getCell(3).text,
+        variant: row.getCell(4).text,
+        tenureMonths: Number(row.getCell(5).value)
+    };
+
+    if (
+        data.testCase !== 'TC_EMI_02' ||
+        !data.brand ||
+        !data.model ||
+        !data.variant ||
+        !Number.isInteger(data.tenureMonths) ||
+        data.tenureMonths <= 0
+    ) {
+        throw new Error('Excel row 2 contains invalid TC_EMI_02 data');
+    }
+
+    return data;
+}
 
 test.beforeEach(async ({ page }) => {
 
@@ -31,11 +69,12 @@ async ({ page }) => {
 
 test('TC_EMI_02 Validate EMI recalculation when tenure changes',
 async ({ page }) => {
+    const tenureData = await readTenureChangeData();
 
     await emiPage.selectBike(
-        bikeData.bike.brand,
-        bikeData.bike.model,
-        bikeData.bike.variant
+        tenureData.brand,
+        tenureData.model,
+        tenureData.variant
     );
 
     console.log(
@@ -53,7 +92,7 @@ console.log(
     const beforeEMI = await emiPage.getEMI();
     console.log("before:"+beforeEMI)
 
-    await emiPage.changeTenureTo24Months();
+    await emiPage.changeTenure(tenureData.tenureMonths);
 
     await page.waitForTimeout(2000);
 
@@ -92,20 +131,22 @@ test('TC_EMI_04 Validate mandatory field validation', async ({ page }) => {
 
     await expect(brandDropdown).toBeVisible();
 
-    await expect(brandDropdown).toHaveValue('');
+    await expect(brandDropdown).toHaveValue(bikeData.expected.emptyBrand);
 
 });
 
 
 test('TC_EMI_05 Validate negative value restriction', async ({ page }) => {
 
-    await page.getByRole('spinbutton').fill('-10000');
+    await page.getByRole('spinbutton').fill(
+        String(bikeData.testInputs.negativeLoanAmount)
+    );
 
     await page.keyboard.press('Enter');
 
     await expect(
       page.locator('.emiPrice')
-    ).not.toContainText('NaN');
+    ).not.toContainText(bikeData.expected.invalidEmiText);
 
 });
 
@@ -116,13 +157,13 @@ test('TC_EMI_06 Validate alphabetic input restriction', async ({ page }) => {
 
     await loanAmount.click();
 
-    await page.keyboard.type('abcd');
+    await page.keyboard.type(bikeData.testInputs.alphabeticLoanAmount);
 
     const value = await loanAmount.inputValue();
 
     console.log('VALUE =', value);
 
-    expect(value).not.toBe('abcd');
+    expect(value).not.toBe(bikeData.testInputs.alphabeticLoanAmount);
 });
 
 

@@ -3,5 +3,13 @@
         "brand": "Honda",
         "model": "Activa",
         "variant": "STD ₹88636*"
+    },
+    "testInputs": {
+        "negativeLoanAmount": -10000,
+        "alphabeticLoanAmount": "abcd"
+    },
+    "expected": {
+        "emptyBrand": "",
+        "invalidEmiText": "NaN"
     }
 }

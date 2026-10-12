@@ -20,9 +20,6 @@ export class EMIPage {
     thirtySixMonths = () =>
         this.page.locator('input[name="loadPeriod"][value="36"]');
 
-    twentyFourMonths = () =>
-        this.page.locator('input[name="loadPeriod"][value="24"]');
-
     // Actions
 
     async navigateToEMICalculator() {
@@ -57,8 +54,10 @@ export class EMIPage {
         await this.thirtySixMonths().check();
     }
 
-    async changeTenureTo24Months() {
-        await this.twentyFourMonths().check();
+    async changeTenure(months: number) {
+        await this.page.locator(
+            `input[name="loadPeriod"][value="${months}"]`
+        ).check();
     }
 
     async increaseInterestRate() {
