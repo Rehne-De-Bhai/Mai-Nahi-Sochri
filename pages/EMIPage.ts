@@ -50,10 +50,6 @@ export class EMIPage {
         return await this.emiPrice().textContent();
     }
 
-    async changeTenureTo36Months() {
-        await this.thirtySixMonths().check();
-    }
-
     async changeTenure(months: number) {
         await this.page.locator(
             `input[name="loadPeriod"][value="${months}"]`

@@ -6,7 +6,8 @@
     },
     "testInputs": {
         "negativeLoanAmount": -10000,
-        "alphabeticLoanAmount": "abcd"
+        "alphabeticLoanAmount": "abcd",
+        "alphabeticInterestRate": "abcd"
     },
     "expected": {
         "emptyBrand": "",

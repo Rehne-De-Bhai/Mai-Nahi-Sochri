@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
-import ExcelJS = require('exceljs');
-import path = require('path');
+import ExcelJS from 'exceljs';
 import { EMIPage } from '../pages/EMIPage';
 import bikeData from '../test-data/emiData.json';
 
@@ -8,11 +7,7 @@ let emiPage: EMIPage;
 
 async function readTenureChangeData() {
     const workbook = new ExcelJS.Workbook();
-    const workbookPath = path.resolve(
-        __dirname,
-        '../test-data/emiTestData.xlsx'
-    );
-    await workbook.xlsx.readFile(workbookPath);
+    await workbook.xlsx.readFile('test-data/emiTestData.xlsx');
 
     const worksheet = workbook.getWorksheet('Tenure Change');
     if (!worksheet) {
@@ -76,18 +71,6 @@ async ({ page }) => {
         tenureData.model,
         tenureData.variant
     );
-
-    console.log(
-  await page.getByPlaceholder('Select Brand').inputValue()
-);
-
-console.log(
-  await page.getByPlaceholder('Select Model').inputValue()
-);
-
-console.log(
-  await page.getByPlaceholder('Select Variant').inputValue()
-);
 
     const beforeEMI = await emiPage.getEMI();
     console.log("before:"+beforeEMI)
@@ -185,4 +168,20 @@ async ({ page }) => {
     const afterEMI = await emiPage.getEMI();
 
     expect(afterEMI).not.toEqual(beforeEMI);
+});
+
+
+test('TC_EMI_08 Validate alphabetic input restriction for bank interest rate',
+async ({ page }) => {
+
+    const interestRate = page.locator('#sliderInterest-min-val input');
+
+    await expect(interestRate).toBeVisible();
+    await interestRate.fill('');
+    await interestRate.pressSequentially(
+        bikeData.testInputs.alphabeticInterestRate
+    );
+
+    const enteredValue = await interestRate.inputValue();
+    expect(enteredValue).not.toBe(bikeData.testInputs.alphabeticInterestRate);
 });
