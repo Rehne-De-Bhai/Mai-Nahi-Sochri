@@ -5,6 +5,7 @@ import bikeData from '../test-data/emiData.json';
 
 let emiPage: EMIPage;
 
+//reads data from excel for TC_EMI_02
 async function readTenureChangeData() {
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile('test-data/emiTestData.xlsx');
@@ -37,6 +38,7 @@ async function readTenureChangeData() {
     return data;
 }
 
+//runs before each test to navigate to the EMI calculator page
 test.beforeEach(async ({ page }) => {
 
     emiPage = new EMIPage(page);
@@ -108,13 +110,17 @@ async ({ page }) => {
 });
 
 
-test('TC_EMI_04 Validate mandatory field validation', async ({ page }) => {
-
-    const brandDropdown = page.locator('#bmvBrand');
-
-    await expect(brandDropdown).toBeVisible();
+test('TC_EMI_04 Validate mandatory field validation', async () => {
+    const brandDropdown = emiPage.brandDropdown();
+    const modelDropdown = emiPage.modelDropdown();
 
     await expect(brandDropdown).toHaveValue(bikeData.expected.emptyBrand);
+    await modelDropdown.click();
+
+    const modelOptions = modelDropdown
+        .locator('xpath=..')
+        .locator('.gs_ta_results li');
+    await expect(modelOptions).toHaveCount(0);
 
 });
 

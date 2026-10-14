@@ -56,6 +56,7 @@ export class EMIPage {
         ).check();
     }
 
+    //sliders actions 
     async increaseInterestRate() {
         await this.interestSlider().press('ArrowRight');
     }
